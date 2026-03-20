@@ -1,0 +1,51 @@
+BoxLayout:
+    orientation: "vertical"
+    padding: 20
+    spacing: 15
+    canvas.before:
+        Color:
+            rgba: (0.1, 0.12, 0.15, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text: "VIDEO AUDIO MIXER"
+        font_size: 26
+        bold: True
+        size_hint_y: 0.15
+        color: (1, 0.7, 0, 1) # צבע כתום מנצנץ
+
+    Label:
+        text: "Source Video Path:"
+        size_hint_y: 0.05
+        halign: "left"
+
+    TextInput:
+        id: vid_input
+        hint_text: "/storage/emulated/0/Download/video.mp4"
+        multiline: False
+        size_hint_y: 0.1
+
+    Label:
+        text: "New Audio Path (MP3):"
+        size_hint_y: 0.05
+
+    TextInput:
+        id: aud_input
+        hint_text: "/storage/emulated/0/Download/music.mp3"
+        multiline: False
+        size_hint_y: 0.1
+
+    Label:
+        id: status
+        text: "Ready to mix"
+        size_hint_y: 0.1
+        color: (0.8, 0.8, 0.8, 1)
+
+    Button:
+        text: "COMBINE VIDEO & AUDIO"
+        size_hint_y: 0.2
+        bold: True
+        background_color: (1, 0.4, 0, 1)
+        on_press: app.start_processing()
