@@ -7,7 +7,7 @@ source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
 
 # כאן הוספתי את ffmpeg-android
-requirements = python3,kivy==2.3.0,ffmpeg-android,requests
+requirements = python3,kivy==2.3.0,ffmpeg,ffpyplayer,requests
 
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 android.api = 31
