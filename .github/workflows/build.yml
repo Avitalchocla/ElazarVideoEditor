@@ -30,12 +30,12 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות SDK באופן ידני וגורף
-          mkdir -p "$HOME/.android"
-          touch "$HOME/.android/repositories.cfg"
+          # יצירת תיקיית ה-SDK מראש
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
           
-          # הורדה ידנית של ה-SDKManager ואישור הרישיונות
+          # התקנה ידנית של הכלים הנכונים ואישור רישיונות
           yes | sdkmanager --licenses || true
+          yes | sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.0"
           
           # הרצת הבנייה
           buildozer android debug
