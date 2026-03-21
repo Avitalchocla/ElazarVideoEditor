@@ -13,12 +13,13 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, M
 
 android.api = 33
 android.minapi = 21
-android.ndk = 25b
+# שינוי ל-25c - גרסה יציבה יותר ל-Gradle ב-GitHub
+android.ndk = 25c
 android.build_tools_version = 33.0.0
 android.archs = arm64-v8a
 
-# הזרקת FFmpeg דרך Gradle - הכי יציב
-android.gradle_dependencies = "com.artyomd.ffmpeg:ffmpeg-kit-full:4.5"
+# חשוב: הורדתי את הגרשיים המיותרות מה-dependency
+android.gradle_dependencies = com.artyomd.ffmpeg:ffmpeg-kit-full:4.5
 
 android.allow_backup = True
 android.release_artifact = apk
