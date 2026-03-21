@@ -33,12 +33,13 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור כל הרישיונות של גוגל מראש
+          # אישור רישיונות אוטומטי
           yes | sdkmanager --licenses || true
           
-          # הגדרת נתיבים רשמיים
+          # הגדרת משתני סביבה ליציבות מקסימלית ב-GitHub
+          export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m"
           export ANDROID_HOME=$ANDROID_HOME
           export ANDROID_SDK_ROOT=$ANDROID_HOME
           
-          # הרצת הבנייה - Buildozer יוריד מה שחסר לו לבד עכשיו כשהרישיונות חתומים
+          # הרצת הבנייה עם לוג מפורט
           buildozer -v android debug
