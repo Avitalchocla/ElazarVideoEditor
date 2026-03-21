@@ -36,15 +36,13 @@ jobs:
           # אישור רישיונות
           yes | sdkmanager --licenses || true
           
-          # התקנת גרסה 33.0.0 באופן ספציפי
-          sdkmanager "build-tools;33.0.0" "platform-tools" "platforms;android-33"
+          # התקנה ממוקדת של הכלים הנחוצים
+          sdkmanager "build-tools;33.0.0" "platforms;android-31" "platform-tools"
           
-          # מחיקת גרסאות RC (בטא) שעלולות לבלבל את buildozer
-          rm -rf $ANDROID_HOME/build-tools/37.0.0-rc2 || true
-          
-          # הגדרת נתיב ה-SDK לשימוש buildozer
-          export ANDROID_SDK_ROOT=$ANDROID_HOME
-          export PATH=$PATH:$ANDROID_HOME/platform-tools
+          # יצירת קישור סימבולי (Symbolic Link) כדי ש-Buildozer ימצא את ה-build-tools
+          mkdir -p .buildozer/android/platform/android-sdk/
+          ln -s $ANDROID_HOME/build-tools .buildozer/android/platform/android-sdk/build-tools
           
           # הרצת הבנייה
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
           buildozer -v android debug
