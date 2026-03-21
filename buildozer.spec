@@ -6,7 +6,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.5
 
-# דרישות בסיסיות למניעת שגיאות קימפול
+# דרישות בסיסיות למניעת שגיאות קימפול - הורדתי זמנית את ffpyplayer לבדיקת יציבות
 requirements = python3,kivy==2.3.0,ffmpeg,requests,certifi
 
 orientation = portrait
@@ -18,7 +18,7 @@ android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a
 
-# חשוב מאוד לערבול וידאו
+# חשוב מאוד לערבול וידאו - זה מושך את ה-FFmpeg דרך מערכת ה-Gradle של אנדרואיד
 android.gradle_dependencies = "com.artyomd.ffmpeg:ffmpeg-kit-full:4.5"
 
 android.allow_backup = True
