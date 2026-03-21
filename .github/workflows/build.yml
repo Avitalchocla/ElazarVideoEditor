@@ -30,9 +30,11 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # יצירת תיקיית עבודה נקייה
-          mkdir -p .buildozer/android/platform/python-for-android
-          # אישור רישיונות SDK מראש כדי למנוע Broken pipe
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          # הרצת הבנייה במצב debug מלא
+          # אישור רישיונות SDK באופן ידני וגורף
+          mkdir -p "$HOME/.android"
+          touch "$HOME/.android/repositories.cfg"
+          # פקודה שמאשרת את כל הרישיונות הקיימים ב-SDK
+          yes | sdkmanager --licenses || true
+          
+          # הרצת הבנייה
           buildozer android debug
