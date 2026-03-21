@@ -33,10 +33,18 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות והתקנת build-tools ידנית כדי למנוע את שגיאת ה-AIDL
+          # אישור רישיונות
           yes | sdkmanager --licenses || true
+          
+          # התקנת גרסה 33.0.0 באופן ספציפי
           sdkmanager "build-tools;33.0.0" "platform-tools" "platforms;android-33"
           
-          # הרצת הבנייה עם הגדרה מפורשת של הנתיבים
+          # מחיקת גרסאות RC (בטא) שעלולות לבלבל את buildozer
+          rm -rf $ANDROID_HOME/build-tools/37.0.0-rc2 || true
+          
+          # הגדרת נתיב ה-SDK לשימוש buildozer
           export ANDROID_SDK_ROOT=$ANDROID_HOME
+          export PATH=$PATH:$ANDROID_HOME/platform-tools
+          
+          # הרצת הבנייה
           buildozer -v android debug
