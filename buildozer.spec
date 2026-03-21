@@ -4,7 +4,7 @@ package.name = ezedit
 package.domain = org.elazar
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
-version = 1.7
+version = 1.8
 
 requirements = python3,kivy==2.3.0,requests
 
@@ -14,10 +14,11 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, M
 android.api = 31
 android.minapi = 21
 android.ndk = 25b
-# קיבוע גרסת הכלים למניעת שגיאת הרישיון וה-AIDL
+# קיבוע גרסה יציבה
 android.build_tools_version = 33.0.0
 android.archs = arm64-v8a
 
+# הזרקת FFmpeg דרך Gradle
 android.gradle_dependencies = "com.artyomd.ffmpeg:ffmpeg-kit-full:4.5"
 
 android.allow_backup = True
