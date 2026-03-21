@@ -33,7 +33,8 @@ jobs:
           # אישור רישיונות SDK באופן ידני וגורף
           mkdir -p "$HOME/.android"
           touch "$HOME/.android/repositories.cfg"
-          # פקודה שמאשרת את כל הרישיונות הקיימים ב-SDK
+          
+          # הורדה ידנית של ה-SDKManager ואישור הרישיונות
           yes | sdkmanager --licenses || true
           
           # הרצת הבנייה
