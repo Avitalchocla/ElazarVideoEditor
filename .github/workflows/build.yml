@@ -33,13 +33,12 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות
+          # אישור כל הרישיונות של גוגל מראש
           yes | sdkmanager --licenses || true
           
-          # הכרח את buildozer להשתמש בתיקיות שהזרקנו לו קודם
-          mkdir -p .buildozer/android/platform/android-sdk/build-tools/33.0.0
-          cp -af $ANDROID_HOME/build-tools/33.0.0/. .buildozer/android/platform/android-sdk/build-tools/33.0.0/
+          # הגדרת נתיבים רשמיים
+          export ANDROID_HOME=$ANDROID_HOME
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
           
-          # הרצת הבנייה עם ניקוי זיכרון ל-Gradle
-          export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m"
+          # הרצת הבנייה - Buildozer יוריד מה שחסר לו לבד עכשיו כשהרישיונות חתומים
           buildozer -v android debug
