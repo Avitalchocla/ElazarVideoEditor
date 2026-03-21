@@ -21,6 +21,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: ⚙️ Install dependencies
         run: |
           sudo apt update
@@ -30,12 +33,5 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # יצירת תיקיית ה-SDK מראש
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          
-          # התקנה ידנית של הכלים הנכונים ואישור רישיונות
-          yes | sdkmanager --licenses || true
-          yes | sdkmanager "platform-tools" "platforms;android-31" "build-tools;33.0.0"
-          
-          # הרצת הבנייה
-          buildozer android debug
+          # אישור רישיונות אוטומטי דרך buildozer
+          yes | buildozer android debug
