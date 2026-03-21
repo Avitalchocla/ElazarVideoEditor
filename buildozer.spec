@@ -4,21 +4,21 @@ package.name = ezedit
 package.domain = org.elazar
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
-version = 1.5
+version = 1.6
 
-# דרישות בסיסיות למניעת שגיאות קימפול - הורדתי זמנית את ffpyplayer לבדיקת יציבות
-requirements = python3,kivy==2.3.0,ffmpeg,requests,certifi
+# דרישות בסיסיות - שים לב שהורדתי את FFmpeg מה-requirements 
+# כי אנחנו משתמשים ב-gradle_dependencies שזה הרבה יותר יציב
+requirements = python3,kivy==2.3.0,requests
 
 orientation = portrait
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 
-# שימוש ב-API 30 ליציבות
 android.api = 30
 android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a
 
-# חשוב מאוד לערבול וידאו - זה מושך את ה-FFmpeg דרך מערכת ה-Gradle של אנדרואיד
+# הדרך המקצועית והיציבה להכניס FFmpeg לאנדרואיד בלי לשבור את ה-build
 android.gradle_dependencies = "com.artyomd.ffmpeg:ffmpeg-kit-full:4.5"
 
 android.allow_backup = True
