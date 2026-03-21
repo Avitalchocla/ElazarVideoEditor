@@ -33,8 +33,10 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות SDK
+          # אישור רישיונות והתקנת build-tools ידנית כדי למנוע את שגיאת ה-AIDL
           yes | sdkmanager --licenses || true
+          sdkmanager "build-tools;33.0.0" "platform-tools" "platforms;android-33"
           
-          # הרצת הבנייה עם לוג מפורט כדי שנראה בדיוק מה קורה ב-Gradle
+          # הרצת הבנייה עם הגדרה מפורשת של הנתיבים
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
           buildozer -v android debug
