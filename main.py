@@ -1,95 +1,88 @@
-from kivy.app import App
-from kivy.lang import Builder
-from kivy.utils import platform
-from kivy.uix.filechooser import FileChooserIconView
-from kivy.uix.popup import Popup
 import os
-import subprocess
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.filechooser import FileChooserIconView
+from kivy.utils import platform
 
-kv_string = '''
-BoxLayout:
-    orientation: 'vertical'
-    padding: 20
-    spacing: 15
-    canvas.before:
-        Color:
-            rgba: (0.1, 0.1, 0.1, 1)
-        Rectangle:
-            pos: self.pos
-            size: self.size
+# ייבוא FFmpegKit לאנדרואיד בלבד
+if platform == 'android':
+    from jnius import autoclass
+    FFmpegKit = autoclass('com.ffmpegkit.FFmpegKit')
+    ReturnCode = autoclass('com.ffmpegkit.ReturnCode')
 
-    Label:
-        text: "ELAZAR VIDEO EDITOR"
-        font_size: '24sp'
-        color: (1, 0.6, 0, 1)
+class VideoAudioMixer(BoxLayout):
+    def __init__(self, **kwargs):
+        super().__init__(orientation='vertical', spacing=10, padding=20, **kwargs)
+        
+        self.video_path = None
+        self.audio_path = None
+        
+        self.label = Label(text="ELAZAR EDITOR V3.2", font_size='24sp', size_hint_y=0.1)
+        self.add_widget(self.label)
+        
+        self.status_label = Label(text="בחר וידאו ואז אודיו", size_hint_y=0.1)
+        self.add_widget(self.status_label)
+        
+        # סייר קבצים
+        default_path = '/sdcard' if platform == 'android' else os.path.expanduser("~")
+        self.file_chooser = FileChooserIconView(path=default_path)
+        self.add_widget(self.file_chooser)
+        
+        # כפתורים
+        btns = BoxLayout(size_hint_y=0.2, spacing=10)
+        self.btn_video = Button(text="1. בחר וידאו", on_release=self.set_video)
+        self.btn_audio = Button(text="2. בחר אודיו", on_release=self.set_audio)
+        self.btn_mix = Button(text="3. בצע MIX", background_color=(0.1, 0.8, 0.1, 1), on_release=self.run_mix)
+        
+        btns.add_widget(self.btn_video)
+        btns.add_widget(self.btn_audio)
+        btns.add_widget(self.btn_mix)
+        self.add_widget(btns)
 
-    Button:
-        text: "1. SELECT VIDEO"
-        size_hint_y: 0.15
-        on_press: app.open_file_manager('video')
+    def set_video(self, instance):
+        if self.file_chooser.selection:
+            self.video_path = self.file_chooser.selection[0]
+            self.status_label.text = f"וידאו: {os.path.basename(self.video_path)}"
 
-    Button:
-        text: "2. SELECT AUDIO (MP3)"
-        size_hint_y: 0.15
-        on_press: app.open_file_manager('audio')
+    def set_audio(self, instance):
+        if self.file_chooser.selection:
+            self.audio_path = self.file_chooser.selection[0]
+            self.status_label.text = f"אודיו: {os.path.basename(self.audio_path)}"
 
-    Label:
-        id: status
-        text: "Select files to begin"
-        size_hint_y: 0.1
-
-    Button:
-        text: "MIX AND SAVE"
-        size_hint_y: 0.2
-        bold: True
-        background_color: (0, 0.7, 0.3, 1)
-        on_press: app.process()
-'''
-
-class VideoEditorApp(App):
-    video = ""
-    audio = ""
-
-    def build(self):
-        if platform == 'android':
-            from android.permissions import request_permissions, Permission
-            request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE, Permission.MANAGE_EXTERNAL_STORAGE])
-        return Builder.load_string(kv_string)
-
-    def open_file_manager(self, target):
-        path = '/storage/emulated/0/' if platform == 'android' else os.path.expanduser("~")
-        chooser = FileChooserIconView(path=path)
-        popup = Popup(title="Select File", content=chooser, size_hint=(0.9, 0.9))
-
-        def on_selection(instance, selection):
-            if selection:
-                if target == 'video':
-                    self.video = selection[0]
-                    self.root.ids.status.text = "Video Selected ✅"
-                else:
-                    self.audio = selection[0]
-                    self.root.ids.status.text = "Audio Selected ✅"
-                popup.dismiss()
-
-        chooser.bind(on_submit=on_selection)
-        popup.open()
-
-    def process(self):
-        if not self.video or not self.audio:
-            self.root.ids.status.text = "❌ Missing files!"
+    def run_mix(self, instance):
+        if not self.video_path or not self.audio_path:
+            self.status_label.text = "חובה לבחור 2 קבצים!"
             return
-        
-        output = "/storage/emulated/0/Download/ELAZAR_MIXED.mp4"
-        
-        # אנחנו מנסים להריץ את ה-ffmpeg שהתקנו דרך ה-requirements
-        cmd = ["ffmpeg", "-y", "-i", self.video, "-i", self.audio, "-c:v", "copy", "-c:a", "aac", "-map", "0:v:0", "-map", "1:a:0", "-shortest", output]
-        
-        try:
-            self.root.ids.status.text = "🔄 Working... please wait"
-            subprocess.run(cmd, check=True)
-            self.root.ids.status.text = "✅ SUCCESS! Saved to Downloads"
-        except Exception as e:
-            self.root.ids.status.text = f"❌ Error: {str(e)}"
 
-if __name__ == "__main__":
-    VideoEditorApp().run()
+        # נתיב תיקיית היעד
+        if platform == 'android':
+            base_path = "/sdcard/Download/ELAZAR_DOWNLOADS"
+        else:
+            base_path = os.path.join(os.path.expanduser("~"), "Downloads", "ELAZAR_DOWNLOADS")
+
+        if not os.path.exists(base_path):
+            os.makedirs(base_path, exist_ok=True)
+
+        output_path = os.path.join(base_path, "mixed_video.mp4")
+        self.status_label.text = "מעבד... נא להמתין"
+        
+        # פקודת המיקס (החלפת אודיו ללא קידוד מחדש של הוידאו)
+        command = f"-y -i '{self.video_path}' -i '{self.audio_path}' -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest '{output_path}'"
+        
+        if platform == 'android':
+            session = FFmpegKit.execute(command)
+            if ReturnCode.isSuccess(session.getReturnCode()):
+                self.status_label.text = "הצלחה! נשמר ב-ELAZAR_DOWNLOADS"
+            else:
+                self.status_label.text = "שגיאה במיקס"
+        else:
+            self.status_label.text = f"הדמיה: {output_path}"
+
+class ElazarEditorApp(App):
+    def build(self):
+        return VideoAudioMixer()
+
+if __name__ == '__main__':
+    ElazarEditorApp().run()
