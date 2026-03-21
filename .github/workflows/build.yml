@@ -30,6 +30,9 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
+          # ניקוי קבצים זמניים לפני תחילת הבנייה
+          buildozer android clean
+          # בנייה מחדש
           yes | buildozer android debug
 
       - name: 📦 Upload APK
