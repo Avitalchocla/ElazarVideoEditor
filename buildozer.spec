@@ -4,25 +4,23 @@ package.name = ezedit
 package.domain = org.elazar
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
-version = 3.2
+version = 3.4
 
-# השארתי רק את מה שחובה באמת
+# הורדתי את ffmpeg-kit מהדרישות, נשתמש בבינארי
 requirements = python3,kivy==2.3.0
 
 orientation = portrait
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
+android.permissions = INTERNET, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO
 
 android.api = 33
 android.minapi = 21
-android.ndk = 25c
+# איחוד גרסאות NDK לפי הצעתך
+android.ndk = 25b
 android.build_tools_version = 33.0.0
 android.archs = arm64-v8a
 
 android.accept_sdk_license = True
 android.enable_androidx = True
-
-# ה-FFmpegKit החיוני
-android.gradle_dependencies = com.artyomd.ffmpeg:ffmpeg-kit-full:4.5
 
 android.allow_backup = True
 android.release_artifact = apk
