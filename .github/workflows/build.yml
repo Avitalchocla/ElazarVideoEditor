@@ -32,6 +32,8 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
+          # יצירת התיקייה שחסרה ל-Buildozer באופן ידני כדי שלא יקרוס
+          mkdir -p .buildozer/android/platform/
           # ניקוי ובנייה
           buildozer android clean
           yes | buildozer android debug
