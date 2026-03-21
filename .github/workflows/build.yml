@@ -33,13 +33,9 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות אוטומטי
           yes | sdkmanager --licenses || true
-          
-          # הגדרת משתני סביבה ליציבות מקסימלית ב-GitHub
+          # הגדרת זיכרון והכנה
           export GRADLE_OPTS="-Dorg.gradle.jvmargs=-Xmx2048m"
-          export ANDROID_HOME=$ANDROID_HOME
-          export ANDROID_SDK_ROOT=$ANDROID_HOME
-          
-          # הרצת הבנייה עם לוג מפורט
+          # ניקוי תיקיות זמניות משלבים קודמים
+          rm -rf .buildozer/android/platform/build-arm64-v8a/dists
           buildozer -v android debug
