@@ -33,18 +33,18 @@ jobs:
 
       - name: 🛠️ Build APK
         run: |
-          # אישור רישיונות והתקנת build-tools 33
+          # אישור רישיונות והתקנת כלים
           yes | sdkmanager --licenses || true
           sdkmanager "build-tools;33.0.0" "platforms;android-31" "platform-tools"
           
-          # יצירת תיקיית היעד של buildozer והעתקת הכלים לשם ידנית
-          mkdir -p .buildozer/android/platform/android-sdk/build-tools/
-          cp -r $ANDROID_HOME/build-tools/33.0.0 .buildozer/android/platform/android-sdk/build-tools/33.0.0
+          # יצירת הנתיב המדויק ש-buildozer מחפש (לפי השגיאה בלוג)
+          mkdir -p .buildozer/android/platform/android-sdk/build-tools
           
-          # הגדרת משתני סביבה קשיחים
+          # העתקת הכלים מתיקיית המערכת לתוך התיקייה של buildozer
+          cp -r $ANDROID_HOME/build-tools/33.0.0 .buildozer/android/platform/android-sdk/build-tools/
+          
+          # הגדרת משתני סביבה
           export ANDROID_SDK_ROOT=$ANDROID_HOME
-          export P4A_SDK_DIR=$ANDROID_HOME
-          export P4A_NDK_DIR=$ANDROID_NDK_HOME
           
-          # הרצת הבנייה עם פקודה שמדלגת על עדכוני SDK
+          # הרצת הבנייה
           buildozer -v android debug
