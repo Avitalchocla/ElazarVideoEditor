@@ -10,8 +10,7 @@ version = 4.0
 requirements = python3,kivy==2.3.0,android
 
 orientation = portrait
-android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO
-
+android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
