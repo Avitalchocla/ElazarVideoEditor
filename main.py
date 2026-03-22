@@ -6,62 +6,87 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.filechooser import FileChooserIconView
+from kivy.uix.video import Video
 from kivy.utils import platform
+from kivy.core.text import LabelBase
 
-class VideoAudioMixer(BoxLayout):
+# 1. טעינת גופן עברי (חובה שהקובץ יהיה בתיקייה!)
+font_path = "arial.ttf"
+if os.path.exists(font_path):
+    LabelBase.register(name="HebrewFont", fn_regular=font_path)
+    HEBREW = "HebrewFont"
+else:
+    HEBREW = None # ברירת מחדל אם אין קובץ
+
+class ElazarEditor(BoxLayout):
     def __init__(self, **kwargs):
-        super().__init__(orientation='vertical', spacing=10, padding=20, **kwargs)
+        super().__init__(orientation='vertical', spacing=5, padding=10, **kwargs)
         
         self.ffmpeg_bin = os.path.join(os.path.dirname(__file__), "ffmpeg")
         self.video_path = None
         self.audio_path = None
-        
-        self.add_widget(Label(text="ELAZAR EDITOR V4.3", font_size='24sp', size_hint_y=0.1))
-        
-        # סייר קבצים משופר - מציג הכל
-        path = '/sdcard' if platform == 'android' else os.path.expanduser("~")
+
+        # נגן תצוגה מקדימה
+        self.preview = Video(source='', state='stop', size_hint_y=0.3)
+        self.add_widget(self.preview)
+
+        self.status_label = Label(text="בחר סרטון כדי לצפות בו", font_name=HEBREW, size_hint_y=0.05)
+        self.add_widget(self.status_label)
+
+        # סייר קבצים
+        path = '/sdcard/Download' if platform == 'android' else os.path.expanduser("~")
         self.file_chooser = FileChooserIconView(
             path=path,
-            filters=['*.mp4', '*.MP4', '*.mp3', '*.MP3', '*.m4a', '*.M4A', '*.wav', '*.WAV'],
-            dirselect=False
+            filters=['*.mp4', '*.MP4', '*.mp3', '*.MP3'],
+            size_hint_y=0.45
         )
+        self.file_chooser.bind(selection=self.on_selection)
         self.add_widget(self.file_chooser)
-        
-        self.status_label = Label(text="If empty: Press REFRESH and check 'All Files Access'", size_hint_y=0.1)
-        self.add_widget(self.status_label)
-        
-        # שורת כפתורי שליטה
-        btns = BoxLayout(size_hint_y=0.2, spacing=10)
-        btns.add_widget(Button(text="FORCE REFRESH", on_release=self.force_refresh))
-        btns.add_widget(Button(text="SET VIDEO", on_release=self.set_video))
-        btns.add_widget(Button(text="SET AUDIO", on_release=self.set_audio))
-        self.add_widget(btns)
 
-        self.add_widget(Button(text="START MIXING", size_hint_y=0.1, background_color=(0, 0.7, 0, 1), on_release=self.run_mix))
+        # כפתורים בעברית
+        btn_layout = BoxLayout(size_hint_y=0.1, spacing=5)
+        self.btn_v = Button(text="קבע כסרטון", font_name=HEBREW, on_release=self.set_video)
+        self.btn_a = Button(text="קבע כאודיו", font_name=HEBREW, on_release=self.set_audio)
+        btn_layout.add_widget(self.btn_v)
+        btn_layout.add_widget(self.btn_a)
+        self.add_widget(btn_layout)
 
-    def force_refresh(self, instance):
-        # פקודה שמכריחה את סייר הקבצים לסרוק מחדש את התיקייה הנוכחית
-        current_path = self.file_chooser.path
-        self.file_chooser.path = '/' 
-        self.file_chooser.path = current_path
-        self.status_label.text = "Scanning folder..."
+        # כפתור ביצוע
+        self.mix_btn = Button(
+            text="התחל מיקס", 
+            font_name=HEBREW,
+            size_hint_y=0.1, 
+            background_color=(0, 0.6, 0, 1),
+            on_release=self.run_mix
+        )
+        self.add_widget(self.mix_btn)
+
+    def on_selection(self, instance, selection):
+        if selection:
+            path = selection[0]
+            if path.lower().endswith(('.mp4', '.MP4')):
+                self.preview.source = path
+                self.preview.state = 'play'
+                self.status_label.text = "מציג סרטון..."
 
     def set_video(self, instance):
         if self.file_chooser.selection:
             self.video_path = self.file_chooser.selection[0]
-            self.status_label.text = f"VIDEO: {os.path.basename(self.video_path)}"
+            self.btn_v.text = "וידאו נבחר ✅"
+            self.status_label.text = "עכשיו בחר קובץ אודיו"
 
     def set_audio(self, instance):
         if self.file_chooser.selection:
             self.audio_path = self.file_chooser.selection[0]
-            self.status_label.text = f"AUDIO: {os.path.basename(self.audio_path)}"
+            self.btn_a.text = "אודיו נבחר ✅"
+            self.status_label.text = "מוכן למיקס!"
 
     def run_mix(self, instance):
         if not self.video_path or not self.audio_path:
-            self.status_label.text = "Error: Select 2 files first!"
+            self.status_label.text = "חובה לבחור את שני הקבצים!"
             return
 
-        output_path = "/sdcard/Download/final_output.mp4"
+        output_path = "/sdcard/Download/final_mix.mp4"
         if os.path.exists(self.ffmpeg_bin):
             os.chmod(self.ffmpeg_bin, os.stat(self.ffmpeg_bin).st_mode | stat.S_IEXEC)
 
@@ -71,15 +96,15 @@ class VideoAudioMixer(BoxLayout):
         ]
 
         try:
-            self.status_label.text = "Processing... Please wait"
+            self.status_label.text = "מבצע מיקס... נא להמתין"
             subprocess.run(cmd, check=True)
-            self.status_label.text = "SUCCESS! Check Downloads folder"
+            self.status_label.text = "הצלחה! הקובץ נשמר בהורדות"
         except:
-            self.status_label.text = "FFmpeg Failed"
+            self.status_label.text = "שגיאה בביצוע המיקס"
 
 class ElazarEditorApp(App):
     def build(self):
-        return VideoAudioMixer()
+        return ElazarEditor()
 
 if __name__ == '__main__':
     ElazarEditorApp().run()
