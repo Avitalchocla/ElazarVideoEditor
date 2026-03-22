@@ -1,5 +1,6 @@
 import os
 import subprocess
+import stat
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -11,13 +12,24 @@ class VideoAudioMixer(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(orientation='vertical', spacing=10, padding=20, **kwargs)
         
+        # איתור ה-FFmpeg שהורדנו ב-Workflow
+        self.ffmpeg_bin = os.path.join(os.path.dirname(__file__), "ffmpeg")
+        
+        # מתן הרשאות הרצה (קריטי לאנדרואיד)
+        if os.path.exists(self.ffmpeg_bin):
+            try:
+                st = os.stat(self.ffmpeg_bin)
+                os.chmod(self.ffmpeg_bin, st.st_mode | stat.S_IEXEC)
+            except:
+                pass
+
         self.video_path = None
         self.audio_path = None
         
-        self.label = Label(text="ELAZAR EDITOR BINARY", font_size='24sp', size_hint_y=0.1)
+        self.label = Label(text="ELAZAR EDITOR V3.5", font_size='24sp', size_hint_y=0.1)
         self.add_widget(self.label)
         
-        self.status_label = Label(text="בחר קבצים לביצוע MIX", size_hint_y=0.1)
+        self.status_label = Label(text="מוכן לעבודה", size_hint_y=0.1)
         self.add_widget(self.status_label)
         
         default_path = '/sdcard' if platform == 'android' else os.path.expanduser("~")
@@ -27,7 +39,7 @@ class VideoAudioMixer(BoxLayout):
         btns = BoxLayout(size_hint_y=0.2, spacing=10)
         self.btn_video = Button(text="1. בחר וידאו", on_release=self.set_video)
         self.btn_audio = Button(text="2. בחר אודיו", on_release=self.set_audio)
-        self.btn_mix = Button(text="3. בצע MIX", background_color=(0.1, 0.7, 0.1, 1), on_release=self.run_mix)
+        self.btn_mix = Button(text="3. בצע MIX", background_color=(0, 0.8, 0, 1), on_release=self.run_mix)
         
         btns.add_widget(self.btn_video)
         btns.add_widget(self.btn_audio)
@@ -37,27 +49,26 @@ class VideoAudioMixer(BoxLayout):
     def set_video(self, instance):
         if self.file_chooser.selection:
             self.video_path = self.file_chooser.selection[0]
-            self.status_label.text = f"וידאו נבחר"
+            self.status_label.text = f"וידאו נבחר בהצלחה"
 
     def set_audio(self, instance):
         if self.file_chooser.selection:
             self.audio_path = self.file_chooser.selection[0]
-            self.status_label.text = f"אודיו נבחר"
+            self.status_label.text = f"אודיו נבחר בהצלחה"
 
     def run_mix(self, instance):
         if not self.video_path or not self.audio_path:
-            self.status_label.text = "חסרים קבצים!"
+            self.status_label.text = "חובה לבחור שני קבצים!"
             return
 
         base_path = "/sdcard/Download/ELAZAR_DOWNLOADS" if platform == 'android' else "./"
         os.makedirs(base_path, exist_ok=True)
-        output_path = os.path.join(base_path, "mixed_video.mp4")
+        output_path = os.path.join(base_path, "mixed_result.mp4")
 
-        self.status_label.text = "מעבד בשיטת Binary..."
+        self.status_label.text = "מבצע מיקס... נא להמתין"
 
-        # פקודת FFmpeg ישירה דרך subprocess
         cmd = [
-            "ffmpeg", "-y",
+            self.ffmpeg_bin, "-y",
             "-i", self.video_path,
             "-i", self.audio_path,
             "-map", "0:v:0", "-map", "1:a:0",
@@ -66,11 +77,10 @@ class VideoAudioMixer(BoxLayout):
         ]
 
         try:
-            # הרצה
             subprocess.run(cmd, check=True)
-            self.status_label.text = "הצלחה! הקובץ ב-ELAZAR_DOWNLOADS"
+            self.status_label.text = "הצלחה! הקובץ בתיקיית ELAZAR_DOWNLOADS"
         except Exception as e:
-            self.status_label.text = f"שגיאה: וודא ש-FFmpeg מותקן במערכת"
+            self.status_label.text = f"שגיאה: {str(e)}"
 
 class ElazarEditorApp(App):
     def build(self):
