@@ -10,13 +10,15 @@ from kivy.uix.video import Video
 from kivy.utils import platform
 from kivy.core.text import LabelBase
 
-# 1. טעינת גופן עברי (חובה שהקובץ יהיה בתיקייה!)
-font_path = "arial.ttf"
+# מנגנון הגנה מפני קריסה - טעינת גופן רק אם הוא קיים
+font_path = os.path.join(os.path.dirname(__file__), "arial.ttf")
+HEBREW = None
 if os.path.exists(font_path):
-    LabelBase.register(name="HebrewFont", fn_regular=font_path)
-    HEBREW = "HebrewFont"
-else:
-    HEBREW = None # ברירת מחדל אם אין קובץ
+    try:
+        LabelBase.register(name="HebrewFont", fn_regular=font_path)
+        HEBREW = "HebrewFont"
+    except:
+        HEBREW = None
 
 class ElazarEditor(BoxLayout):
     def __init__(self, **kwargs):
@@ -30,7 +32,8 @@ class ElazarEditor(BoxLayout):
         self.preview = Video(source='', state='stop', size_hint_y=0.3)
         self.add_widget(self.preview)
 
-        self.status_label = Label(text="בחר סרטון כדי לצפות בו", font_name=HEBREW, size_hint_y=0.05)
+        status_text = "Select Video / בחר סרטון" if HEBREW else "Select Video"
+        self.status_label = Label(text=status_text, font_name=HEBREW, size_hint_y=0.05)
         self.add_widget(self.status_label)
 
         # סייר קבצים
@@ -43,20 +46,22 @@ class ElazarEditor(BoxLayout):
         self.file_chooser.bind(selection=self.on_selection)
         self.add_widget(self.file_chooser)
 
-        # כפתורים בעברית
+        # כפתורים
         btn_layout = BoxLayout(size_hint_y=0.1, spacing=5)
-        self.btn_v = Button(text="קבע כסרטון", font_name=HEBREW, on_release=self.set_video)
-        self.btn_a = Button(text="קבע כאודיו", font_name=HEBREW, on_release=self.set_audio)
+        txt_v = "SET VIDEO / קבע וידאו" if HEBREW else "SET VIDEO"
+        txt_a = "SET AUDIO / קבע אודיו" if HEBREW else "SET AUDIO"
+        
+        self.btn_v = Button(text=txt_v, font_name=HEBREW, on_release=self.set_video)
+        self.btn_a = Button(text=txt_a, font_name=HEBREW, on_release=self.set_audio)
         btn_layout.add_widget(self.btn_v)
         btn_layout.add_widget(self.btn_a)
         self.add_widget(btn_layout)
 
-        # כפתור ביצוע
+        # כפתור מיקס
+        mix_text = "START MIX / התחל מיקס" if HEBREW else "START MIX"
         self.mix_btn = Button(
-            text="התחל מיקס", 
-            font_name=HEBREW,
-            size_hint_y=0.1, 
-            background_color=(0, 0.6, 0, 1),
+            text=mix_text, font_name=HEBREW,
+            size_hint_y=0.1, background_color=(0, 0.6, 0, 1),
             on_release=self.run_mix
         )
         self.add_widget(self.mix_btn)
@@ -67,23 +72,19 @@ class ElazarEditor(BoxLayout):
             if path.lower().endswith(('.mp4', '.MP4')):
                 self.preview.source = path
                 self.preview.state = 'play'
-                self.status_label.text = "מציג סרטון..."
 
     def set_video(self, instance):
         if self.file_chooser.selection:
             self.video_path = self.file_chooser.selection[0]
-            self.btn_v.text = "וידאו נבחר ✅"
-            self.status_label.text = "עכשיו בחר קובץ אודיו"
+            self.status_label.text = "Video Selected ✅"
 
     def set_audio(self, instance):
         if self.file_chooser.selection:
             self.audio_path = self.file_chooser.selection[0]
-            self.btn_a.text = "אודיו נבחר ✅"
-            self.status_label.text = "מוכן למיקס!"
+            self.status_label.text = "Audio Selected ✅"
 
     def run_mix(self, instance):
         if not self.video_path or not self.audio_path:
-            self.status_label.text = "חובה לבחור את שני הקבצים!"
             return
 
         output_path = "/sdcard/Download/final_mix.mp4"
@@ -94,13 +95,11 @@ class ElazarEditor(BoxLayout):
             self.ffmpeg_bin, "-y", "-i", self.video_path, "-i", self.audio_path,
             "-c:v", "copy", "-c:a", "aac", "-map", "0:v:0", "-map", "1:a:0", "-shortest", output_path
         ]
-
         try:
-            self.status_label.text = "מבצע מיקס... נא להמתין"
             subprocess.run(cmd, check=True)
-            self.status_label.text = "הצלחה! הקובץ נשמר בהורדות"
+            self.status_label.text = "SUCCESS! Saved in Downloads"
         except:
-            self.status_label.text = "שגיאה בביצוע המיקס"
+            self.status_label.text = "Error in Mix"
 
 class ElazarEditorApp(App):
     def build(self):
