@@ -1,25 +1,22 @@
 [app]
-title = ELAZAR EDITOR PRO
+title = ELAZAR EDITOR
 package.name = ezedit
 package.domain = org.elazar
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ffmpeg
-version = 3.5
+version = 4.0
 
+# הוספתי כאן את android - זה קריטי למניעת קריסה!
 requirements = python3,kivy==2.3.0,android
 
 orientation = portrait
-android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, MANAGE_EXTERNAL_STORAGE
+android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO
 
 android.api = 33
 android.minapi = 21
 android.ndk = 25b
-android.build_tools_version = 33.0.0
 android.archs = arm64-v8a
-
 android.accept_sdk_license = True
-android.enable_androidx = True
-android.allow_backup = True
 
 [buildozer]
 log_level = 2
