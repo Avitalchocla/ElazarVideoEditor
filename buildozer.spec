@@ -6,7 +6,7 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,ffmpeg
 version = 3.5
 
-requirements = python3,kivy==2.3.0
+requirements = python3,kivy==2.3.0,android
 
 orientation = portrait
 android.permissions = INTERNET, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE, READ_MEDIA_VIDEO, READ_MEDIA_AUDIO, READ_MEDIA_IMAGES
